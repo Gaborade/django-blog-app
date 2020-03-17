@@ -1,0 +1,24 @@
+<!-- this is the template that handles email forms -->
+{% extends 'blog/base.html' %} 
+
+{% block title %} Share a post {% endblock %}
+
+{% block content %}
+{% if sent %}
+<h1>E-mail successfully sent</h1>
+<p>
+    "{{post.title}}" was successfully sent to {{form.cleaned_data.to}}
+</p>
+{% else %}
+<h1>Share "{{post.title}} by e-mail</h1>
+<form action="." method="POST">
+    <!-- we render each field in the form instance(EmailPostForm()) as a paragraph with as_p method -->
+    <!-- To render as an unordered list, use as_ul and to render as HTML table, use as_table method  -->
+    <!-- we could also use a for loop to iterate through all the fields in form -->
+    {{form.as_p}}
+    <!-- every form with a POST method needs a csrf token to avoid cross site forgeries -->
+    {% csrf_token %} 
+    <input type="submit" value="Send e-mail">
+</form>
+{% endif %}
+{% endblock %}

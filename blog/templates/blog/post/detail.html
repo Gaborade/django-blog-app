@@ -1,0 +1,71 @@
+{% extends "blog/base.html" %}
+
+<!-- another thing to note. Since we want the detail of each post, -->
+<!-- there is no need to iterate over the items in Post because -->
+<!-- the detail URL is a slug for one particular post and not series of posts -->
+{% block title %} {{post.title}} {% endblock %}
+
+{% block content %}
+<h1>{{post.title}}</h1>
+<p class="date">
+    Published {{posts.publish}} by {{post.author}}
+</p>
+{{post.body|linebreaks}}
+<p>
+    <!-- this is a dynamic url remember that way you don't hardcode the actual url of post_share in the template -->
+    <!-- therefore any change in the url is made in the urls.py urlpatterns variable -->
+    <a href="{% url "blog:post_share" post.id %}">
+        Share this post
+    </a>
+</p>
+
+<!-- displaying similar posts to the post instance -->
+<h2>Similar posts</h2>
+{% for post in similar_posts %}
+<p>
+    <a href="{% post.get_absolute_url %}">{{post.title}}</a>
+</p>
+{% empty %}
+There are no similar posts yet
+{% endfor %}
+
+<!-- displaying list of comments -->
+
+<!-- {% with %} tag acts just like a normal Python context manager and assigns comments.count method to a variable,-->
+<!-- that will be available until the {% endwith %} tag -->
+{% with comments.count as total_comments %}
+<h2>
+    <!-- pluralize suffix adds a plural suffix or string 's' to the word comment depending on the value of total comments  -->
+    <!-- so if value of total_comments is 1, then comment but for 0 or > 1, comments -->
+        {{total_comments}}comment{{total_comments|pluralize}} 
+</h2>
+<!-- instead of straight away beginning with the for comment in comments loop, -->
+<!-- could do an if comments tag then instead of the empty tag we use an else statement tag -->
+{% for comment in comments %}
+<div class="comments">
+    <p class="info">
+        <!-- forloop.counter counts the value for each iteration -->
+        Comment {{forloop.counter}} by {{comment.name}}
+        {{comment.created}}
+    </p>
+    {{comment.body|linebreaks}}
+</div>
+<!-- default message if comments list is empty -->
+{% empty %}
+<p>There are no comments yet</p>
+
+<!-- rendering the comment form -->
+{% if new_comment %}
+<h2>Your comment has been added</h2>
+{% else %}
+<h2>Add a new comment</h2>
+<form action="." method="POST">
+    <!-- render comment_form as paragraph -->
+    {{comment_form.as_p}}
+    {% csrf_token %}
+    <p><input type="submit" value="Add comment here"></p>
+</form>
+{% endif %}
+ 
+{% endblock %}
+
